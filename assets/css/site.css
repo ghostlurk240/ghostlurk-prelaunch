@@ -1,0 +1,190 @@
+/* Ghostlurk pre-launch teaser. Tokens, grain, veil, reveal and button are copied from the
+   Ghostlurk website (app/globals.css). Change them there first, then copy them here. */
+
+/* 1. Fonts (SIL OFL 1.1, see assets/fonts/LICENSES.md) */
+@font-face { font-family: 'Unbounded'; src: url('../fonts/unbounded.woff2') format('woff2'); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: 'Geist'; src: url('../fonts/geist.woff2') format('woff2'); font-weight: 400 700; font-display: swap; }
+@font-face { font-family: 'Geist Mono'; src: url('../fonts/geist-mono.woff2') format('woff2'); font-weight: 400 600; font-display: swap; }
+
+/* 2. Tokens */
+:root {
+  --ink: #0b1030;       /* night indigo: the art's cobalt taken to near black */
+  --cobalt: #2f479b;    /* main background blue in the art */
+  --indigo: #4848a8;    /* haze band in Ghostlurk 01 */
+  --ice: #e6f0f5;       /* ghost body white */
+  --charcoal: #4f555b;  /* charcoal eyes */
+  --muted: #a8b6d8;     /* muted text on dark */
+  --line: rgba(230, 240, 245, .2);
+
+  --accent: #ffb61c;    /* Lantern amber, from the cyclops eye */
+
+  --font-display: 'Unbounded', 'Arial Black', sans-serif;
+  --font-body: 'Geist', system-ui, Arial, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, Menlo, monospace;
+  --display-weight: 800;
+
+  --grain: url('../texture/grain.png');
+  --gutter: clamp(22px, 4.5vw, 80px);
+  --page-inset: max(var(--gutter), calc((100vw - 1440px) / 2));
+  --column-gap: clamp(24px, 4vw, 64px);
+  --radius-bar: 12px;
+  --radius-control: 10px;
+  --radius-chip: 8px;
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+}
+
+/* 3. Reset and base */
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; background: var(--ink); }
+body { margin: 0; background: var(--ink); color: var(--ice); font-family: var(--font-body); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: clip; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; padding: 0; }
+a, button { -webkit-tap-highlight-color: transparent; }
+img { display: block; max-width: 100%; height: auto; }
+h1, p { margin: 0; }
+h1 { font-family: var(--font-display); font-weight: var(--display-weight); letter-spacing: -.035em; line-height: .92; text-transform: uppercase; text-wrap: balance; }
+em { font-style: normal; color: var(--accent); }
+p { text-wrap: pretty; }
+::selection { background: var(--accent); color: var(--ink); }
+:focus:not(:focus-visible) { outline: none; }
+:is(a, button):focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
+
+/* Grain that matches the NFT art, laid over the whole page */
+.grain { position: fixed; inset: -50%; z-index: 90; pointer-events: none; background: var(--grain); background-size: 180px; opacity: .2; mix-blend-mode: overlay; animation: grain-shift 1.2s steps(6) infinite; }
+
+/* 4. Shared pieces */
+.eyebrow, .mono { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .1em; line-height: 1.5; text-transform: uppercase; }
+.eyebrow b { color: var(--accent); font-weight: 500; }
+
+.button { display: inline-flex; align-items: center; justify-content: center; gap: 32px; min-height: 52px; padding: 14px 28px; border-radius: var(--radius-control); background: var(--ice); color: var(--ink); font-size: 14px; font-weight: 700; white-space: nowrap; transition: background .2s, color .2s, transform .2s; }
+.button:hover { background: var(--accent); transform: translateY(-3px); box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 14%, transparent), 0 12px 36px -8px color-mix(in srgb, var(--accent) 55%, transparent); }
+.button-accent { background: var(--accent); color: var(--ink); box-shadow: 0 0 22px -4px color-mix(in srgb, var(--accent) 60%, transparent); }
+.button-accent:hover { background: var(--ice); }
+
+.page-title { font-size: clamp(34px, min(5vw, 8.6vh), 80px); line-height: .9; }
+
+/* 5. Haze: the website's haze video, faked with soft drifting gradients */
+.haze { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: radial-gradient(80% 90% at 20% 0%, color-mix(in srgb, var(--indigo) 55%, transparent), transparent 60%), var(--ink); }
+.haze-blob { position: absolute; border-radius: 50%; will-change: transform; }
+.haze-a { width: 90vmax; height: 70vmax; left: 35%; top: -30%; background: radial-gradient(closest-side, color-mix(in srgb, var(--cobalt) 75%, transparent), transparent); animation: haze-drift-a 26s ease-in-out infinite alternate; }
+.haze-b { width: 70vmax; height: 50vmax; left: -25%; top: 40%; background: radial-gradient(closest-side, color-mix(in srgb, var(--indigo) 55%, transparent), transparent); animation: haze-drift-b 32s ease-in-out infinite alternate; }
+.haze-c { width: 50vmax; height: 36vmax; left: 45%; top: 45%; background: radial-gradient(closest-side, rgba(230, 240, 245, .09), transparent); animation: haze-drift-c 22s ease-in-out infinite alternate; }
+.haze-shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, var(--ink)); }
+@keyframes haze-drift-a { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(-12%, 10%, 0) scale(1.12); } }
+@keyframes haze-drift-b { from { transform: translate3d(0, 0, 0) scale(1.05); } to { transform: translate3d(14%, -12%, 0) scale(.95); } }
+@keyframes haze-drift-c { from { transform: translate3d(0, 0, 0); opacity: .6; } to { transform: translate3d(-18%, -14%, 0); opacity: 1; } }
+
+/* 6. Layout: one screen */
+.stage { position: relative; z-index: 1; display: grid; grid-template-rows: auto 1fr; gap: clamp(16px, 3vh, 32px); min-height: 100svh; padding: max(14px, env(safe-area-inset-top)) var(--page-inset) max(clamp(20px, 4vh, 48px), env(safe-area-inset-bottom)); }
+
+/* Small frosted logo bar, like the website header */
+.top { justify-self: center; position: relative; padding: 7px 14px 7px 8px; border-radius: var(--radius-bar); background: linear-gradient(180deg, rgba(47, 71, 155, .38), rgba(11, 16, 48, .55)); box-shadow: inset 0 1px 0 rgba(230, 240, 245, .16), inset 0 0 0 1px rgba(230, 240, 245, .08), 0 18px 40px -22px rgba(3, 6, 25, .9); backdrop-filter: blur(16px) saturate(1.35); -webkit-backdrop-filter: blur(16px) saturate(1.35); }
+.top::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--grain); background-size: 160px; opacity: .1; mix-blend-mode: overlay; pointer-events: none; }
+.brand { display: inline-flex; align-items: center; gap: 10px; min-height: 40px; }
+.brand-mark { flex: none; width: 32px; height: 32px; object-fit: contain; animation: wordmark-lurk 6.5s ease-in-out 1.2s infinite; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--ice) 40%, transparent)); }
+.brand-word { display: block; height: 13px; width: auto; }
+
+.teaser { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: var(--column-gap); align-items: center; width: 100%; max-width: 1280px; margin: 0 auto; }
+.copy { display: grid; justify-items: start; gap: clamp(18px, 3.2vh, 34px); }
+.tagline { font-size: clamp(16px, 1.5vw, 20px); line-height: 1.5; color: rgba(230, 240, 245, .86); }
+.tagline em { font-weight: 600; }
+
+/* Countdown in a frosted bar */
+.countdown-wrap { display: grid; gap: 10px; justify-items: start; }
+.countdown { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 6px; border-radius: 18px; background: linear-gradient(180deg, rgba(47, 71, 155, .32), rgba(11, 16, 48, .5)); box-shadow: inset 0 1px 0 rgba(230, 240, 245, .14), inset 0 0 0 1px rgba(230, 240, 245, .07), 0 30px 60px -30px rgba(3, 6, 25, .9); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.count-cell { display: grid; justify-items: center; gap: 6px; min-width: clamp(64px, 7.4vw, 108px); padding: clamp(10px, 1.8vh, 18px) 8px clamp(8px, 1.4vh, 14px); border-radius: 13px; background: rgba(11, 16, 48, .4); }
+.count-num { font-family: var(--font-display); font-weight: var(--display-weight); font-size: clamp(28px, min(3.6vw, 6vh), 54px); line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.count-cell .mono { font-size: 10px; color: var(--muted); }
+.count-label { color: var(--muted); padding-left: 4px; }
+html[data-countdown='done'] .count-num { color: var(--accent); }
+
+/* Sneak peek: a fogged glimpse that clears a little on hover or tap */
+.glimpse { display: grid; justify-items: center; gap: clamp(14px, 2.6vh, 26px); }
+.peek { position: relative; display: block; width: min(100%, 52vh, 460px); aspect-ratio: 1; }
+.peek-glow { position: absolute; inset: 4% 8%; border-radius: 50%; background: radial-gradient(circle at 40% 35%, color-mix(in srgb, var(--accent) 34%, transparent), transparent 52%), radial-gradient(circle at 65% 70%, color-mix(in srgb, var(--indigo) 40%, transparent), transparent 58%); filter: blur(28px); opacity: .7; animation: carousel-glow 7s ease-in-out infinite; pointer-events: none; }
+.peek-frame { position: absolute; inset: 0; overflow: hidden; border-radius: 26px; background: var(--cobalt); box-shadow: 0 0 0 1px rgba(230, 240, 245, .1), 0 30px 60px -20px rgba(3, 6, 25, .8); animation: carousel-lurk 6.4s ease-in-out infinite; isolation: isolate; }
+.peek-art { position: absolute; inset: 0; }
+.peek-art img { width: 100%; height: 100%; object-fit: cover; filter: blur(18px) saturate(.85) brightness(.9); transform: scale(1.22); transition: filter 1.4s ease, transform 1.4s var(--ease-out); }
+.peek-fog { position: absolute; inset: 0; z-index: 1; background: radial-gradient(75% 75% at 50% 45%, transparent 30%, rgba(11, 16, 48, .55)), linear-gradient(180deg, rgba(72, 72, 168, .25), rgba(11, 16, 48, .35)); transition: opacity 1.4s ease; pointer-events: none; }
+/* Extra grain on the peek object itself, like the Lurk Machine exception on the website */
+.peek-fog::after { content: ''; position: absolute; inset: 0; background: var(--grain); background-size: 140px; opacity: .45; mix-blend-mode: overlay; }
+.peek-hint { position: absolute; left: 12px; bottom: 10px; z-index: 2; padding: 4px 8px; border-radius: var(--radius-chip); background: rgba(11, 16, 48, .6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); font-size: 10px; white-space: nowrap; transition: opacity .4s; }
+.hint-tap { display: none; }
+@media (hover: none) { .hint-hover { display: none; } .hint-tap { display: inline; } }
+.peek.is-clear .peek-art img { filter: blur(6px) saturate(1.05) brightness(1); transform: scale(1.12); transition: filter .35s ease-out, transform .5s var(--ease-out); }
+.peek.is-clear .peek-fog { opacity: .45; transition: opacity .35s ease-out; }
+.peek.is-clear .peek-hint { opacity: 0; }
+@media (hover: hover) and (pointer: fine) {
+  .peek.is-clear .peek-art { filter: url(#haunt); }
+}
+
+/* Whispers: three lines that fade in and out in one spot */
+.whispers { display: grid; width: min(100%, 28rem); min-height: 3.2em; text-align: center; }
+.whisper { grid-area: 1 / 1; align-self: center; font-size: 15px; line-height: 1.5; color: var(--muted); opacity: 0; filter: blur(8px); transform: translateY(6px); transition: opacity 1.1s ease, filter 1.1s ease, transform 1.1s var(--ease-out); }
+.whisper.is-on { opacity: 1; filter: none; transform: none; }
+
+/* Ghost smoke (mouse and trackpad only) */
+.ghost-smoke { position: fixed; inset: 0; z-index: 95; width: 100vw; height: 100vh; pointer-events: none; }
+.svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* 7. Veil: haze covers on load, the mark settles, then the veil lifts.
+   Same pieces as the website's page veil; 'load' is the starting state with no fade in. */
+.page-veil { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; overflow: hidden; pointer-events: none; visibility: hidden; opacity: 0; color: var(--ice); background: radial-gradient(circle at 50% 46%, color-mix(in srgb, var(--ice) 18%, transparent) 0 10%, color-mix(in srgb, var(--indigo) 50%, transparent) 24%, rgba(11, 16, 48, .78) 52%, var(--ink) 80%), var(--cobalt); transform: scale(1.03); transition: opacity .42s var(--ease-out), transform .42s var(--ease-out), visibility 0s linear .42s; }
+.page-veil::after { content: ''; position: absolute; inset: 0; background: var(--grain); background-size: 180px; opacity: .16; mix-blend-mode: overlay; pointer-events: none; }
+.veil-vortex { position: absolute; inset: -22%; }
+.veil-fog { position: absolute; border-radius: 50%; filter: blur(28px); mix-blend-mode: screen; }
+.veil-fog-a { inset: -6%; background: conic-gradient(from 20deg, transparent 0 12%, color-mix(in srgb, var(--indigo) 75%, transparent) 20%, transparent 36%, color-mix(in srgb, var(--ice) 55%, transparent) 44%, transparent 58%, color-mix(in srgb, var(--cobalt) 80%, transparent) 68%, transparent); opacity: .7; }
+.veil-fog-b { inset: 12%; background: conic-gradient(from 200deg, transparent 0 16%, color-mix(in srgb, var(--ice) 45%, transparent) 24%, transparent 42%, color-mix(in srgb, var(--indigo) 65%, transparent) 52%, transparent); opacity: .55; }
+.veil-fog-c { inset: 28%; background: radial-gradient(circle, color-mix(in srgb, var(--ink) 65%, transparent), transparent 68%); filter: blur(16px); opacity: .75; }
+.veil-bloom { position: absolute; z-index: 1; width: min(36vw, 280px); height: min(36vw, 280px); border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--ice) 55%, transparent) 0 14%, color-mix(in srgb, var(--indigo) 35%, transparent) 42%, transparent 70%); pointer-events: none; opacity: 0; transform: scale(.88); transition: opacity .36s var(--ease-out), transform .36s var(--ease-out); }
+.page-veil .ghost-mark { position: relative; z-index: 2; width: 92px; height: auto; opacity: 0; transform: scale(.9); filter: drop-shadow(0 0 20px color-mix(in srgb, var(--ice) 70%, transparent)); transition: opacity .36s var(--ease-out), transform .36s var(--ease-out); }
+html[data-veil] .page-veil { will-change: opacity, transform; }
+html[data-veil='load'] .page-veil { visibility: visible; pointer-events: auto; opacity: 1; transform: none; transition: none; }
+html[data-veil='reveal'] .page-veil { visibility: visible; pointer-events: none; opacity: 0; transform: scale(1.02); transition: opacity .6s var(--ease-out), transform .6s var(--ease-out), visibility 0s linear .6s; }
+html[data-veil] .veil-fog-a { animation: veil-spin 5.5s linear infinite; }
+html[data-veil] .veil-fog-b { animation: veil-spin 7.5s linear infinite reverse; }
+html[data-veil='load'] .veil-bloom { opacity: 1; transform: none; }
+html[data-veil='reveal'] .veil-bloom { opacity: 0; transform: scale(1.08); }
+html[data-veil='load'] .page-veil .ghost-mark { opacity: .96; transform: none; animation: wordmark-mark-in .5s var(--ease-out) both; }
+html[data-veil='reveal'] .page-veil .ghost-mark { opacity: 0; transform: scale(1.05); }
+
+/* Reveal: blur to sharp, only when JavaScript is ready and motion is on */
+html[data-reveal-ready] [data-reveal] { opacity: 0; filter: blur(12px); transform: translateY(24px); transition: opacity .65s ease, filter .65s ease, transform .65s var(--ease-out); transition-delay: var(--reveal-delay, 0s); }
+html[data-reveal-ready] [data-reveal][data-in-view='true'] { opacity: 1; filter: none; transform: none; }
+
+/* Ghost cursor (mouse and trackpad only) */
+@media (pointer: fine) {
+  html { cursor: url('../cursor/ghost.svg') 16 3, auto; }
+  html body :is(a, button) { cursor: url('../cursor/ghost-hover.svg') 16 3, pointer; }
+}
+
+@keyframes grain-shift { 0% { transform: translate(0, 0); } 20% { transform: translate(-3%, 2%); } 40% { transform: translate(2%, -3%); } 60% { transform: translate(-2%, -1%); } 80% { transform: translate(3%, 3%); } 100% { transform: translate(0, 0); } }
+@keyframes veil-spin { to { transform: rotate(360deg); } }
+@keyframes wordmark-mark-in { from { opacity: 0; transform: scale(.88) translateY(8px); } to { opacity: .96; transform: none; } }
+@keyframes wordmark-lurk { 0%, 100% { transform: translateY(0) rotate(0); } 40% { transform: translateY(-3px) rotate(-6deg); } 70% { transform: translateY(-1px) rotate(4deg); } }
+@keyframes carousel-lurk { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+@keyframes carousel-glow { 0%, 100% { opacity: .55; transform: scale(.94); } 50% { opacity: .95; transform: scale(1.08); } }
+
+/* 8. Breakpoints */
+@media (max-width: 860px) {
+  .stage { gap: 28px; }
+  .teaser { grid-template-columns: minmax(0, 1fr); gap: 36px; align-content: start; text-align: center; }
+  .copy { justify-items: center; gap: 22px; }
+  .page-title { font-size: clamp(32px, 10vw, 56px); }
+  .countdown-wrap { justify-items: center; }
+  .count-label { padding-left: 0; }
+  .peek { width: min(78vw, 360px); }
+  .glimpse { padding-bottom: 8px; }
+}
+@media (max-width: 380px) {
+  .countdown { gap: 4px; padding: 4px; border-radius: 14px; }
+  .count-cell { min-width: 0; padding: 10px 4px 8px; border-radius: 10px; }
+  .count-num { font-size: 24px; }
+  .count-cell .mono { font-size: 9px; letter-spacing: .06em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  [data-reveal] { opacity: 1 !important; filter: none !important; transform: none !important; }
+  .whisper { filter: none; transform: none; }
+}

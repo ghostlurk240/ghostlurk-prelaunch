@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ghostlurk</title>
+  <meta name="description" content="You weren't supposed to see this. Private by nature. Ghosted by choice.">
+  <meta name="theme-color" content="#0b1030">
+  <meta property="og:title" content="Ghostlurk">
+  <meta property="og:description" content="You weren't supposed to see this.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@Ghostlurk_">
+  <link rel="icon" href="icon.png">
+  <link rel="apple-touch-icon" href="apple-icon.png">
+  <link rel="preload" href="assets/fonts/unbounded.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/geist-mono.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script>
+    // Cover the page before first paint so the veil can lift onto a finished view.
+    // Without JavaScript, or with reduced motion, the page simply shows.
+    (function () {
+      var root = document.documentElement;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      root.dataset.veil = 'load';
+      root.dataset.revealReady = 'true';
+      // Safety net: never leave the page covered.
+      setTimeout(function () {
+        if (root.dataset.veil) delete root.dataset.veil;
+        document.querySelectorAll('[data-reveal]').forEach(function (el) { el.dataset.inView = 'true'; });
+      }, 4000);
+    })();
+  </script>
+  <script src="assets/js/site.js" defer></script>
+</head>
+<body>
+  <div class="haze" aria-hidden="true">
+    <span class="haze-blob haze-a"></span>
+    <span class="haze-blob haze-b"></span>
+    <span class="haze-blob haze-c"></span>
+    <span class="haze-shade"></span>
+  </div>
+
+  <div class="stage">
+    <header class="top" data-reveal>
+      <span class="brand">
+        <img class="brand-mark" src="assets/brand/logo-mark.webp" alt="" width="254" height="227">
+        <img class="brand-word" src="assets/brand/logo-word.webp" alt="Ghostlurk" width="720" height="100">
+      </span>
+    </header>
+
+    <main class="teaser" id="main">
+      <div class="copy">
+        <h1 class="page-title" data-reveal style="--reveal-delay: .05s">You weren’t supposed to <em>see</em> this.</h1>
+        <p class="tagline" data-reveal style="--reveal-delay: .15s">Private by nature. <em>Ghosted</em> by choice.</p>
+
+        <div class="countdown-wrap" data-reveal style="--reveal-delay: .25s">
+          <div class="countdown" role="timer" aria-label="Time until October 31, 9:00 PM Eastern">
+            <div class="count-cell"><span class="count-num" data-unit="days">00</span><span class="mono">Days</span></div>
+            <div class="count-cell"><span class="count-num" data-unit="hours">00</span><span class="mono">Hours</span></div>
+            <div class="count-cell"><span class="count-num" data-unit="minutes">00</span><span class="mono">Minutes</span></div>
+            <div class="count-cell"><span class="count-num" data-unit="seconds">00</span><span class="mono">Seconds</span></div>
+          </div>
+          <p class="eyebrow count-label"><time datetime="2026-10-31T21:00:00-04:00">Oct 31 · <b>9:00 PM ET</b></time></p>
+        </div>
+
+        <div data-reveal style="--reveal-delay: .35s"><a class="button button-accent" href="https://x.com/Ghostlurk_" target="_blank" rel="noopener">Follow on X</a></div>
+      </div>
+
+      <div class="glimpse">
+        <button class="peek" type="button" aria-label="Peek through the fog" data-reveal style="--reveal-delay: .2s">
+          <span class="peek-glow" aria-hidden="true"></span>
+          <span class="peek-frame">
+            <span class="peek-art"><img src="assets/art/peek.webp" alt="" width="640" height="640" decoding="async"></span>
+            <span class="peek-fog" aria-hidden="true"></span>
+            <span class="mono peek-hint"><span class="hint-hover">Hover to peek</span><span class="hint-tap">Tap to peek</span></span>
+          </span>
+        </button>
+
+        <div class="whispers" data-reveal style="--reveal-delay: .45s">
+          <p class="whisper is-on">Something is lurking.</p>
+          <p class="whisper">No faces. No names. No trace.</p>
+          <p class="whisper">We’d tell you what it does, but then we’d have to vanish.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="grain" aria-hidden="true"></div>
+  <canvas class="ghost-smoke" aria-hidden="true"></canvas>
+
+  <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <filter id="haunt" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.011 0.018" numOctaves="2" seed="7">
+        <animate attributeName="baseFrequency" dur="7s" values="0.011 0.018;0.016 0.026;0.011 0.018" repeatCount="indefinite" />
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" scale="12" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
+  <div class="page-veil" aria-hidden="true">
+    <div class="veil-vortex">
+      <span class="veil-fog veil-fog-a"></span>
+      <span class="veil-fog veil-fog-b"></span>
+      <span class="veil-fog veil-fog-c"></span>
+    </div>
+    <span class="veil-bloom"></span>
+    <img class="ghost-mark" src="assets/brand/logo-mark.webp" alt="">
+  </div>
+</body>
+</html>
