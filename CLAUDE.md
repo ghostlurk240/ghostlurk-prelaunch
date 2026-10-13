@@ -21,5 +21,6 @@ Ghostlurk pre-launch teaser. One page, plain HTML, CSS and a little JavaScript. 
 ## Preview and deploy
 
 - Preview: `python3 -m http.server 8000` in this folder, then open http://localhost:8000
-- Every push to `main` deploys to GitHub Pages via `.github/workflows/pages.yml`.
-- Live: https://ghostlurk240.github.io/ghostlurk-prelaunch/
+- Railway: runs `npm start` (`server.js`, no dependencies), which serves only the site files on Railway's `PORT` (8080 if unset). Test it the same way locally: `PORT=4321 npm start`, then open http://localhost:4321
+- Every push to `main` also deploys to GitHub Pages via `.github/workflows/pages.yml` (kept as a backup).
+- GitHub Pages: https://ghostlurk240.github.io/ghostlurk-prelaunch/
