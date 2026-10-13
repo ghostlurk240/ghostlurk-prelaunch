@@ -108,12 +108,8 @@ html[data-countdown='done'] .count-num { color: var(--accent); }
 .peek-fog { position: absolute; inset: 0; z-index: 1; background: radial-gradient(75% 75% at 50% 45%, transparent 30%, rgba(11, 16, 48, .55)), linear-gradient(180deg, rgba(72, 72, 168, .25), rgba(11, 16, 48, .35)); transition: opacity 1.4s ease; pointer-events: none; }
 /* Extra grain on the peek object itself, like the Lurk Machine exception on the website */
 .peek-fog::after { content: ''; position: absolute; inset: 0; background: var(--grain); background-size: 140px; opacity: .45; mix-blend-mode: overlay; }
-.peek-hint { position: absolute; left: 12px; bottom: 10px; z-index: 2; padding: 4px 8px; border-radius: var(--radius-chip); background: rgba(11, 16, 48, .6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); font-size: 10px; white-space: nowrap; transition: opacity .4s; }
-.hint-tap { display: none; }
-@media (hover: none) { .hint-hover { display: none; } .hint-tap { display: inline; } }
 .peek.is-clear .peek-art img { filter: blur(6px) saturate(1.05) brightness(1); transform: scale(1.12); transition: filter .35s ease-out, transform .5s var(--ease-out); }
 .peek.is-clear .peek-fog { opacity: .45; transition: opacity .35s ease-out; }
-.peek.is-clear .peek-hint { opacity: 0; }
 @media (hover: hover) and (pointer: fine) {
   .peek.is-clear .peek-art { filter: url(#haunt); }
 }
