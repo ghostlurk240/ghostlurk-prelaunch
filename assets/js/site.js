@@ -231,12 +231,13 @@
 
   /* Lantern: a soft light rides with the cursor, sharpens the ghost where it falls and shows
      the lines hidden in the fog. On touch screens it appears where you tap, then fades. */
+  var drawLantern = null;
   var lantern = document.querySelector('.lantern');
   var secrets = document.querySelector('.secrets');
   var lit = document.querySelector('.ghost-lit');
   if (lantern && secrets) {
     var lx = 0, ly = 0, lanternFrame = 0, tapTimer = 0;
-    var drawLantern = function () {
+    drawLantern = function () {
       lanternFrame = 0;
       lantern.style.transform = 'translate3d(' + lx + 'px,' + ly + 'px,0)';
       secrets.style.setProperty('--lx', lx + 'px');
@@ -275,6 +276,90 @@
       tapTimer = setTimeout(function () { delete root.dataset.lantern; }, 1600);
     }, { passive: true });
   }
+
+  /* Depth: the ghost and the fog drift at different depths as the cursor moves, the ghost's
+     eyes follow it, and the button leans toward it when it comes close. On phones the eyes
+     look toward the last tap. All of it eases, and none of it runs with reduced motion. */
+  var apparition = document.querySelector('.apparition');
+  var fog = document.querySelector('.fog-bank');
+  var eyes = document.querySelector('.ghost-eyes');
+  var buttonEl = document.querySelector('.button-ghost');
+  var magnet = buttonEl ? buttonEl.parentElement : null;
+  var fineMouse = window.matchMedia('(hover: hover) and (pointer: fine)');
+  if (apparition && motionAllowed()) {
+    var mx = window.innerWidth / 2, my = window.innerHeight / 2, depthFrame = 0;
+    var cur = { ax: 0, ay: 0, fx: 0, fy: 0, ex: 0, ey: 0, bx: 0, by: 0 };
+    var depthTargets = function () {
+      var nx = mx / window.innerWidth - 0.5, ny = my / window.innerHeight - 0.5;
+      var t = { ax: nx * -18, ay: ny * -12, fx: nx * -40, fy: ny * -8, ex: 0, ey: 0, bx: 0, by: 0 };
+      if (eyes && ghostBox) {
+        var g = ghostBox.getBoundingClientRect();
+        var dx = mx - (g.left + g.width * 0.383), dy = my - (g.top + g.height * 0.30);
+        var d = Math.hypot(dx, dy) || 1;
+        var reach = Math.min(1, d / 420) * g.width * 0.012;
+        t.ex = dx / d * reach;
+        t.ey = dy / d * reach;
+      }
+      if (magnet && fineMouse.matches) {
+        var b = magnet.getBoundingClientRect();
+        var bx = mx - (b.left - cur.bx + b.width / 2), by = my - (b.top - cur.by + b.height / 2);
+        if (Math.hypot(bx, by) < 110) { t.bx = bx * 0.16; t.by = by * 0.22; }
+      }
+      return t;
+    };
+    var stepDepth = function () {
+      depthFrame = 0;
+      var t = depthTargets(), moving = false;
+      for (var k in cur) {
+        var diff = t[k] - cur[k];
+        if (Math.abs(diff) > 0.05) { cur[k] += diff * 0.08; moving = true; } else { cur[k] = t[k]; }
+      }
+      apparition.style.translate = cur.ax.toFixed(2) + 'px ' + cur.ay.toFixed(2) + 'px';
+      if (fog) fog.style.translate = cur.fx.toFixed(2) + 'px ' + cur.fy.toFixed(2) + 'px';
+      if (eyes) eyes.style.translate = cur.ex.toFixed(2) + 'px ' + cur.ey.toFixed(2) + 'px';
+      if (magnet) magnet.style.translate = cur.bx.toFixed(2) + 'px ' + cur.by.toFixed(2) + 'px';
+      // Keep the lantern's sharp spot lined up while the ghost settles.
+      if (root.dataset.lantern && drawLantern) drawLantern();
+      if (moving) depthFrame = requestAnimationFrame(stepDepth);
+    };
+    var aim = function (e) {
+      mx = e.clientX;
+      my = e.clientY;
+      if (!depthFrame) depthFrame = requestAnimationFrame(stepDepth);
+    };
+    window.addEventListener('pointermove', function (e) { if (e.pointerType === 'mouse') aim(e); }, { passive: true });
+    window.addEventListener('pointerdown', aim, { passive: true });
+  }
+
+  /* Decoding text: "10.31" and the date line resolve out of scrambled code as they appear,
+     and again on hover or tap. Uses mono glyphs only, so the width never jumps. */
+  var GLYPHS = '0123456789ABCDEF#%&*+=/<>';
+  var KEEP = ' ·.:';
+  function decode(el) {
+    if (!motionAllowed() || el.dataset.decoding) return;
+    var text = el.dataset.text || (el.dataset.text = el.textContent);
+    el.dataset.decoding = 'on';
+    var start = performance.now(), DUR = 1000;
+    var frame = function (now) {
+      var k = Math.min(1, (now - start) / DUR), out = '';
+      for (var i = 0; i < text.length; i += 1) {
+        var c = text[i];
+        out += KEEP.indexOf(c) > -1 || i / text.length < k ? c : GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+      }
+      el.textContent = out;
+      if (k < 1) requestAnimationFrame(frame); else delete el.dataset.decoding;
+    };
+    requestAnimationFrame(frame);
+  }
+  [[document.querySelector('.top-date'), document.querySelector('.top-date'), 650],
+   [document.querySelector('.count-label time'), document.querySelector('.count-label'), 900]].forEach(function (pair) {
+    var el = pair[0], hit = pair[1];
+    if (!el) return;
+    el.setAttribute('aria-label', el.textContent);
+    setTimeout(function () { decode(el); }, pair[2]);
+    hit.addEventListener('pointerenter', function () { decode(el); });
+    hit.addEventListener('click', function () { decode(el); });
+  });
 
   /* Ghost smoke: soft smoke off the button on hover, a burst on click.
      Ported from the website's GhostSmoke. Mouse and trackpad only. */

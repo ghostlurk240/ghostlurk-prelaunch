@@ -89,6 +89,9 @@ html[data-lantern='on'] .ghost-lit { opacity: 1; }
 /* Eyes glowing faintly amber, breathing slowly */
 .ghost-eyes { position: absolute; inset: 0; mix-blend-mode: screen; background: radial-gradient(circle calc(var(--gw) * .075) at 32.2% 28.4%, rgba(255, 182, 28, .5), rgba(255, 130, 20, .16) 45%, transparent), radial-gradient(circle calc(var(--gw) * .075) at 44.4% 31.5%, rgba(255, 182, 28, .5), rgba(255, 130, 20, .16) 45%, transparent); animation: eyes-breathe 6s ease-in-out infinite; }
 
+/* Signal pass: a faint scan line sweeps down through the ghost every 13 seconds */
+.ghost-scan { position: absolute; left: 0; right: 0; top: 0; height: 16%; background: linear-gradient(180deg, transparent, rgba(150, 175, 255, .07) 70%, rgba(230, 240, 245, .22) 96%, transparent); mix-blend-mode: screen; opacity: 0; pointer-events: none; animation: scan-pass 13s linear 4s infinite; }
+
 /* Low fog bank drifting along the bottom */
 .fog-bank { position: absolute; left: -30%; right: -30%; bottom: -4vh; height: 50vh; background: radial-gradient(ellipse 22% 48% at 18% 72%, rgba(196, 210, 240, .16), transparent 70%), radial-gradient(ellipse 26% 55% at 46% 82%, rgba(170, 186, 232, .15), transparent 70%), radial-gradient(ellipse 22% 46% at 74% 74%, rgba(196, 210, 240, .14), transparent 70%), linear-gradient(180deg, transparent, rgba(120, 136, 196, .1) 55%, rgba(60, 72, 140, .18)); animation: fog-drift 38s ease-in-out infinite alternate; will-change: transform; }
 
@@ -201,6 +204,7 @@ html[data-reveal-ready] [data-reveal][data-in-view='true'] { opacity: 1; filter:
 @keyframes neon-die { 0%, 100% { opacity: 1; } 6% { opacity: .5; } 10% { opacity: .95; } 16% { opacity: .62; } 22% { opacity: 1; } 55% { opacity: .82; } 62% { opacity: 1; } }
 @keyframes smoke-out { 0% { opacity: 1; } 100% { opacity: 0; filter: blur(5px); transform: translateY(-.45em) scale(1.08); } }
 @keyframes smoke-in { 0% { opacity: 0; filter: blur(4px); transform: translateY(.2em); } 30% { opacity: .75; filter: blur(1px); } 45% { opacity: .35; } 60% { opacity: .9; filter: none; transform: none; } 75% { opacity: .6; } 100% { opacity: 1; } }
+@keyframes scan-pass { 0% { opacity: 0; transform: translateY(-100%); } 2% { opacity: 1; } 22% { opacity: 1; transform: translateY(625%); } 24%, 100% { opacity: 0; transform: translateY(625%); } }
 @keyframes mark-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 @keyframes eye-glint { 0% { opacity: 0; transform: scale(.4); } 30% { opacity: 1; transform: scale(1.15); } 100% { opacity: 0; transform: scale(.8); } }
 @keyframes apparition-hover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.4vh); } }
