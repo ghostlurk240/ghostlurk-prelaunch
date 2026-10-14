@@ -35,7 +35,8 @@ http.createServer((req, res) => {
     res.writeHead(200, {
       'Content-Type': type,
       'Content-Length': stat.size,
-      'Cache-Control': pathname === '/index.html' ? 'no-cache' : 'public, max-age=86400',
+      // Page, styles and scripts are rechecked every visit so a push shows up at once.
+      'Cache-Control': /\.(html|css|js)$/.test(file) ? 'no-cache' : 'public, max-age=86400',
       'X-Content-Type-Options': 'nosniff',
     });
     if (req.method === 'HEAD') return res.end();

@@ -1,4 +1,4 @@
-// Ghostlurk teaser: veil, reveal, countdown, peek, whispers and ghost smoke.
+// Ghostlurk teaser: veil, reveal, countdown, whispers, lantern and ghost smoke.
 // Motion follows the website rule: always on, unless the device asks for reduced motion.
 (function () {
   'use strict';
@@ -46,9 +46,41 @@
 
   var launch = easternToUtc(2026, 10, 31, 21, 0);
   var units = {};
+  var counting = false;
   document.querySelectorAll('[data-unit]').forEach(function (el) { units[el.dataset.unit] = el; });
   function pad(n) { return n < 10 ? '0' + n : String(n); }
-  function set(unit, value) { if (units[unit] && units[unit].textContent !== value) units[unit].textContent = value; }
+
+  // Smoldering digits: the old one burns out while the new one ignites.
+  function swapDigit(slot, ch, animate) {
+    var cur = slot.querySelector('.d:not(.is-out)');
+    if (cur && cur.textContent === ch) return;
+    slot.querySelectorAll('.d.is-out').forEach(function (old) { old.remove(); });
+    var next = document.createElement('span');
+    next.className = animate ? 'd is-in' : 'd';
+    next.textContent = ch;
+    if (cur && animate) {
+      cur.className = 'd is-out';
+      cur.addEventListener('animationend', function () { cur.remove(); }, { once: true });
+    } else if (cur) {
+      cur.remove();
+    }
+    slot.appendChild(next);
+  }
+
+  function set(unit, value) {
+    var el = units[unit];
+    if (!el) return;
+    if (el.children.length !== value.length) {
+      el.textContent = '';
+      for (var i = 0; i < value.length; i += 1) {
+        var slot = document.createElement('span');
+        slot.className = 'digit';
+        el.appendChild(slot);
+      }
+    }
+    var animate = counting && motionAllowed() && !document.hidden;
+    for (var j = 0; j < value.length; j += 1) swapDigit(el.children[j], value[j], animate);
+  }
 
   function tick() {
     var left = Math.max(0, launch - Date.now());
@@ -57,36 +89,194 @@
     set('hours', pad(Math.floor(s / 3600) % 24));
     set('minutes', pad(Math.floor(s / 60) % 60));
     set('seconds', pad(s % 60));
+    counting = true;
     if (left === 0) { root.dataset.countdown = 'done'; return; }
     setTimeout(tick, 1000 - (Date.now() % 1000) + 10);
   }
   tick();
 
-  /* Peek: hover or tap clears the fog a little for a second, then it fogs back up */
-  var peek = document.querySelector('.peek');
-  if (peek) {
-    var fogTimer = 0;
-    var clear = function () {
-      peek.classList.add('is-clear');
-      clearTimeout(fogTimer);
-      fogTimer = setTimeout(function () { peek.classList.remove('is-clear'); }, 1100);
+  /* Smoke letters: each whisper gathers out of drifting smoke, holds, then exhales away sideways.
+     Letters are split so they can drift on their own; screen readers get the plain line. */
+  function smokeLetters(p) {
+    var text = p.textContent;
+    var shown = document.createElement('span');
+    shown.setAttribute('aria-hidden', 'true');
+    var i = 0;
+    text.split(' ').forEach(function (word, w) {
+      if (w) shown.appendChild(document.createTextNode(' '));
+      var wordEl = document.createElement('span');
+      wordEl.className = 'w';
+      for (var c = 0; c < word.length; c += 1) {
+        var ch = document.createElement('span');
+        ch.className = 'ch';
+        ch.textContent = word[c];
+        ch.style.cssText = '--i:' + i + ';--dx:' + (Math.random() * 14).toFixed(1) + 'px;--dy:' + (Math.random() * 12 - 6).toFixed(1) + 'px';
+        wordEl.appendChild(ch);
+        i += 1;
+      }
+      shown.appendChild(wordEl);
+    });
+    var plain = document.createElement('span');
+    plain.className = 'sr-only';
+    plain.textContent = text;
+    p.textContent = '';
+    p.appendChild(plain);
+    p.appendChild(shown);
+  }
+
+  var EXHALE = 2600;
+  function exhale(line) {
+    if (!line.classList.contains('is-on')) return;
+    line.classList.remove('is-on');
+    line.classList.add('is-gone');
+    setTimeout(function () { line.classList.remove('is-gone'); }, EXHALE);
+  }
+
+  // Keep a placed whisper fully on screen.
+  function keepOnScreen(line) {
+    var box = line.getBoundingClientRect();
+    var pad = 12;
+    var dx = Math.max(0, pad - box.left) - Math.max(0, box.right - (window.innerWidth - pad));
+    if (dx) line.style.left = (parseFloat(line.style.left) / 100 * window.innerWidth + dx) + 'px';
+  }
+
+  /* Spots around the ghost, as % of the screen, clear of the headline and the eyes */
+  var phone = window.matchMedia('(max-width: 860px)');
+  var SPOTS_WIDE = [[19, 20], [23, 36], [15, 29], [81, 20], [77, 36], [85, 29], [50, 9]];
+  var SPOTS_PHONE = [[50, 10.5], [40, 14], [60, 14], [50, 43], [50, 47]];
+  var lastSpot = -1;
+  function place(line) {
+    var spots = phone.matches ? SPOTS_PHONE : SPOTS_WIDE;
+    var n;
+    do { n = Math.floor(Math.random() * spots.length); } while (n === lastSpot && spots.length > 1);
+    lastSpot = n;
+    line.style.left = spots[n][0] + (Math.random() * 4 - 2) + '%';
+    line.style.top = spots[n][1] + (Math.random() * 3 - 1.5) + '%';
+    keepOnScreen(line);
+  }
+
+  var all = Array.prototype.slice.call(document.querySelectorAll('.whisper'));
+  all.forEach(smokeLetters);
+  var blink = document.querySelector('.blink-whisper');
+  var whispers = all.filter(function (p) { return p !== blink; });
+
+  if (whispers.length && !motionAllowed()) {
+    // Reduced motion: one still line, picked at random.
+    whispers[0].classList.remove('is-on');
+    var still = whispers[Math.floor(Math.random() * whispers.length)];
+    place(still);
+    still.classList.add('is-on');
+  } else if (whispers.length > 1) {
+    var HOLD = 4600;     // from forming to the start of the exhale
+    var OVERLAP = 1100;  // next line starts gathering while the last one drifts off
+    var current = Math.floor(Math.random() * whispers.length);
+    whispers[0].classList.remove('is-on');
+    root.dataset.whispers = 'on';
+    var showLine = function () {
+      var line = whispers[current];
+      line.classList.remove('is-gone');
+      place(line);
+      void line.offsetWidth;
+      line.classList.add('is-on');
+      setTimeout(function () {
+        exhale(line);
+        current = (current + 1) % whispers.length;
+        setTimeout(showLine, OVERLAP);
+      }, HOLD);
     };
-    peek.addEventListener('pointerenter', clear);
-    peek.addEventListener('click', clear);
+    // Begin once the veil has lifted.
+    setTimeout(showLine, 1600);
   }
 
-  /* Whispers take turns in one spot */
-  var whispers = document.querySelectorAll('.whisper');
-  if (whispers.length > 1) {
-    var current = 0;
-    setInterval(function () {
-      whispers[current].classList.remove('is-on');
-      current = (current + 1) % whispers.length;
-      whispers[current].classList.add('is-on');
-    }, 4200);
+  /* "you blinked. it didn't." forms near the ghost's eyes after 5 seconds of stillness
+     (no mouse, scroll, key or touch), and drifts away as soon as they move again. */
+  var ghostBox = document.querySelector('.ghost-box');
+  if (blink && ghostBox) {
+    var IDLE_MS = 5000;
+    var idleTimer = 0;
+    var showBlink = function () {
+      var g = ghostBox.getBoundingClientRect();
+      // Just under the eyes (eyes sit 38% across, 30% down the art).
+      blink.style.left = (g.left + g.width * 0.383) + 'px';
+      blink.style.top = (g.top + g.height * 0.405) + 'px';
+      keepOnScreen(blink);
+      blink.classList.remove('is-gone');
+      void blink.offsetWidth;
+      blink.classList.add('is-on');
+    };
+    var stir = function () {
+      exhale(blink);
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(showBlink, IDLE_MS);
+    };
+    ['pointermove', 'pointerdown', 'wheel', 'scroll', 'keydown', 'touchstart'].forEach(function (type) {
+      window.addEventListener(type, stir, { passive: true });
+    });
+    // The page counts as still from the moment the veil lifts.
+    idleTimer = setTimeout(showBlink, IDLE_MS + 1000);
   }
 
-  /* Ghost smoke: soft smoke off links and the peek on hover, a burst on click.
+  /* Dying neon: the tagline flickers once every 15 to 25 seconds */
+  var neon = document.querySelector('.neon');
+  if (neon && motionAllowed()) {
+    var flickerLater = function () {
+      setTimeout(function () {
+        neon.classList.add('is-flicker');
+        setTimeout(function () { neon.classList.remove('is-flicker'); }, 950);
+        flickerLater();
+      }, 15000 + Math.random() * 10000);
+    };
+    flickerLater();
+  }
+
+  /* Lantern: a soft light rides with the cursor, sharpens the ghost where it falls and shows
+     the lines hidden in the fog. On touch screens it appears where you tap, then fades. */
+  var lantern = document.querySelector('.lantern');
+  var secrets = document.querySelector('.secrets');
+  var lit = document.querySelector('.ghost-lit');
+  if (lantern && secrets) {
+    var lx = 0, ly = 0, lanternFrame = 0, tapTimer = 0;
+    var drawLantern = function () {
+      lanternFrame = 0;
+      lantern.style.transform = 'translate3d(' + lx + 'px,' + ly + 'px,0)';
+      secrets.style.setProperty('--lx', lx + 'px');
+      secrets.style.setProperty('--ly', ly + 'px');
+      if (lit && ghostBox) {
+        var g = ghostBox.getBoundingClientRect();
+        // The sharp layer's light is measured in the ghost's own (unscaled) size.
+        var scale = g.width / ghostBox.offsetWidth || 1;
+        lit.style.setProperty('--gx', (lx - g.left) / scale + 'px');
+        lit.style.setProperty('--gy', (ly - g.top) / scale + 'px');
+      }
+    };
+    var moveLantern = function (e) {
+      lx = e.clientX;
+      ly = e.clientY;
+      if (!lanternFrame) lanternFrame = requestAnimationFrame(drawLantern);
+    };
+    window.addEventListener('pointermove', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      moveLantern(e);
+      root.dataset.lantern = 'on';
+    }, { passive: true });
+    root.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse' && root.dataset.lantern) delete root.dataset.lantern; });
+    window.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse') return;
+      // Place the light before fading it in, so it never slides across the screen.
+      var fading = [lantern, secrets, lit].filter(Boolean);
+      fading.forEach(function (el) { el.style.transition = 'none'; });
+      lx = e.clientX;
+      ly = e.clientY;
+      drawLantern();
+      void lantern.offsetWidth;
+      fading.forEach(function (el) { el.style.transition = ''; });
+      root.dataset.lantern = 'on';
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(function () { delete root.dataset.lantern; }, 1600);
+    }, { passive: true });
+  }
+
+  /* Ghost smoke: soft smoke off the button on hover, a burst on click.
      Ported from the website's GhostSmoke. Mouse and trackpad only. */
   var canvas = document.querySelector('.ghost-smoke');
   var fine = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -122,7 +312,7 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  function tone(el) { return el.matches('.button-accent') ? 'amber' : 'ice'; }
+  function tone(el) { return el.matches('.button-ghost') ? 'amber' : 'ice'; }
 
   function spawn(x, y, kind, burst) {
     if (parts.length >= MAX_PARTS) parts.shift();
